@@ -1,0 +1,1647 @@
+---
+title: "NHANES_application"
+author: "Yang Ou"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+
+## --- model check fit
+
+```{r}
+#source("01_fui_two_stage_loo.R", encoding = "UTF-8")
+
+formula01 <- Y ~ HealthCondt2 +
+  Race * Gender +
+  Race * AgeYR +
+  HEI * Race
+```
+
+
+## --joint model result---
+
+```{r}
+fit_m1_interaction_01 <- fit_flfoqr_fui_bounded_gamma_betaf_xcov(
+  Y = Y_use,
+  W = W_use,
+  Z = Z_use,
+
+  Nsim = 2000,
+  warmup = 1000,
+  tau0 = 0.1,
+
+  ## BMI outcome model
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  ## Measurement model：加入 Age、HEI、Gender
+  x_numeric_Z = c("AgeYR", "HEI"),
+  x_factor_Z = "Gender",
+
+  ## 协变量解释的 PA 部分 + gamma 进入 outcome
+  x_covariate_in_outcome = TRUE,
+  x_covariate_prior_sd = 10,
+
+  K_func = 12,
+  basis_weights = "unit",
+  K_beta = 10,
+  beta_bs = "cc",
+  periodic_time = FALSE,
+
+  sigma_gamma_prior_mean = 22,
+  sigma_gamma_prior_sd = 0.5,
+  sigma_gamma_lower = 18,
+  sigma_gamma_upper = 22.5,
+
+  a_x_prior_sd = 100,
+  sigma_omega_prior_scale = 15,
+  sigma_e_prior_scale = 10,
+
+  beta_fixed_prior_mean = 0.0979531,
+  beta_fixed_prior_sd = 0.1,
+  beta_random_prior_scale = 1,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+
+
+
+
+### -----interaction 0.1
+```{r}
+fit_m1_interaction_01 <- fit_flfoqr_fui_bounded_gamma_betaf_xcov(
+  Y = Y_use,
+  W = W_use,
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.1,
+
+  ## BMI outcome model
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  ## Measurement model：不加入协变量
+  x_numeric_Z = NULL,
+  x_factor_Z = NULL,
+
+  ## 无 measurement covariates 时，outcome 使用 gamma
+  x_covariate_in_outcome = FALSE,
+  x_covariate_prior_sd = 10,  # 此模式下不参与计算
+
+  K_func = 12,
+  basis_weights = "unit",
+  K_beta = 10,
+  beta_bs = "cc",
+  periodic_time = FALSE,
+
+  sigma_gamma_prior_mean = 22,
+  sigma_gamma_prior_sd = 0.5,
+  sigma_gamma_lower = 18,
+  sigma_gamma_upper = 22.5,
+
+  a_x_prior_sd = 100,
+  sigma_omega_prior_scale = 15,
+  sigma_e_prior_scale = 10,
+
+  beta_fixed_prior_mean = 0.0979531,
+  beta_fixed_prior_sd = 0.1,
+  beta_random_prior_scale = 1,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+```{r}
+fit_m1_interaction_01 <- fit_flfoqr_fui_bounded_gamma_betaf_xcov(
+  Y = Y_use,
+  W = W_use,
+  Z = Z_use,
+
+  Nsim = 2000,
+  warmup = 1000,
+  tau0 = 0.1,
+
+  ## BMI scalar model: 保留 Age + Gender
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z  = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  ## latent PA model
+  #x_numeric_Z = "AgeYR",
+  x_numeric_Z = c("AgeYR", "HEI"),
+  x_factor_Z  = "Gender",
+
+  ## complete latent X enters functional outcome
+  x_covariate_in_outcome = TRUE,
+  x_covariate_prior_sd = 10,
+
+  K_func = 12,
+  basis_weights = "unit",
+  K_beta = 10,
+  beta_bs = "cc",
+  periodic_time = FALSE,
+
+  ## 用你 tau=.5 当前对应的 prior
+  sigma_gamma_prior_mean = 22,
+  sigma_gamma_prior_sd = 0.5,
+  sigma_gamma_lower = 18,
+  sigma_gamma_upper = 22.5,
+
+  a_x_prior_sd = 100,
+  sigma_omega_prior_scale = 15,
+  sigma_e_prior_scale = 10,
+
+  beta_fixed_prior_mean = 0.0979531,
+  beta_fixed_prior_sd = 0.1,
+  beta_random_prior_scale = 1,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+### -----interaction 0.5
+```{r}
+fit_m1_interaction_05 <- fit_flfoqr_fui_bounded_gamma_betaf_xcov(
+  Y = Y_use,
+  W = W_use,
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.5,
+
+  ## BMI outcome model
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  ## Measurement model：不加入协变量
+  x_numeric_Z = NULL,
+  x_factor_Z = NULL,
+
+  ## 无 measurement covariates 时，outcome 使用 gamma
+  x_covariate_in_outcome = FALSE,
+  x_covariate_prior_sd = 10,  # 此模式下不参与计算
+
+  K_func = 12,
+  basis_weights = "unit",
+  K_beta = 10,
+  beta_bs = "cc",
+  periodic_time = FALSE,
+
+  sigma_gamma_prior_mean = 22,
+  sigma_gamma_prior_sd = 0.5,
+  sigma_gamma_lower = 18,
+  sigma_gamma_upper = 22.5,
+
+  a_x_prior_sd = 100,
+  sigma_omega_prior_scale = 15,
+  sigma_e_prior_scale = 10,
+
+  beta_fixed_prior_mean = 0.07642642,
+  beta_fixed_prior_sd = 0.1,
+  
+  beta_random_prior_scale = 1,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+```{r}
+fit_joint_interaction_05 <- fit_flfoqr_fui_bounded_gamma_betaf(
+  Y = Y_use,
+  W = W_use,
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.5,
+
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z  = c("Gender", "Race", "HealthCondt2"),
+
+  K_func = 12,
+  basis_weights = "unit",
+
+  K_beta = 10,
+  beta_bs = "cc",
+  periodic_time = FALSE,
+
+  ## tau = 0.5 gamma prior
+  sigma_gamma_prior_mean = 20,
+  sigma_gamma_prior_sd = 0.5,
+  sigma_gamma_lower = 18,
+  sigma_gamma_upper = 22,
+
+  a_x_prior_sd = 100,
+  sigma_omega_prior_scale = 15,
+  sigma_e_prior_scale = 10,
+
+  ## tau = 0.9 anchor
+  beta_fixed_prior_mean = 0.07642642,
+  beta_fixed_prior_sd = 0.1,
+  
+  beta_random_prior_scale = 1,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+
+  adapt_delta = 0.95,
+  max_treedepth = 12
+)
+```
+
+### -----interaction 0.9
+```{r}
+fit_m1_interaction_09 <- fit_flfoqr_fui_bounded_gamma_betaf_xcov(
+  Y = Y_use,
+  W = W_use,
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.9,
+
+  ## BMI outcome model
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  ## Measurement model：不加入协变量
+  x_numeric_Z = NULL,
+  x_factor_Z = NULL,
+
+  ## 无 measurement covariates 时，outcome 使用 gamma
+  x_covariate_in_outcome = FALSE,
+  x_covariate_prior_sd = 10,  # 此模式下不参与计算
+
+  K_func = 12,
+  basis_weights = "unit",
+  K_beta = 10,
+  beta_bs = "cc",
+  periodic_time = FALSE,
+
+  ## tau = 0.9 gamma prior
+  sigma_gamma_prior_mean = 23,
+  sigma_gamma_prior_sd = 0.5,
+  sigma_gamma_lower = 18,
+  sigma_gamma_upper = 23.5,
+
+  a_x_prior_sd = 100,
+  sigma_omega_prior_scale = 15,
+  sigma_e_prior_scale = 10,
+
+  ## tau = 0.9 anchor
+  beta_fixed_prior_mean = 0.0979531,
+  beta_fixed_prior_sd = 0.0162127,
+  beta_random_prior_scale = 1,
+
+
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+```{r}
+fit_joint_interaction_09 <- fit_flfoqr_fui_bounded_gamma_betaf(
+  Y = Y_use,
+  W = W_use,
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.9,
+
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z  = c("Gender", "Race", "HealthCondt2"),
+
+  K_func = 12,
+  basis_weights = "unit",
+
+  K_beta = 10,
+  beta_bs = "cc",
+  periodic_time = FALSE,
+
+  ## tau = 0.9 gamma prior
+  sigma_gamma_prior_mean = 23,
+  sigma_gamma_prior_sd = 0.5,
+  sigma_gamma_lower = 18,
+  sigma_gamma_upper = 23.5,
+
+  a_x_prior_sd = 100,
+  sigma_omega_prior_scale = 15,
+  sigma_e_prior_scale = 10,
+
+  ## tau = 0.9 anchor
+  beta_fixed_prior_mean = 0.0979531,
+  beta_fixed_prior_sd = 0.0162127,
+  beta_random_prior_scale = 1,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+
+  adapt_delta = 0.95,
+  max_treedepth = 12
+)
+```
+
+
+## --fui model result---
+
+#### -----fui 0.1
+```{r}
+fit_fui01_loo <- BQBayes.MCMCSampleSFPCA_raw_fui(
+  Y = Y_use,
+  W = w_fui_use,       # 已经估计并对齐的 FUI 曲线
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.1,
+
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+
+
+#### -----fui 0.5
+```{r}
+fit_fui05_loo <- BQBayes.MCMCSampleSFPCA_raw_fui(
+  Y = Y_use,
+  W = w_fui_use,       # 已经估计并对齐的 FUI 曲线
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.5,
+
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+
+#### -----fui 0.9
+```{r}
+fit_fui09_loo <- BQBayes.MCMCSampleSFPCA_raw_fui(
+  Y = Y_use,
+  W = w_fui_use,       # 已经估计并对齐的 FUI 曲线
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.9,
+
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+## --raw model result---
+
+#### -----raw 0.1
+```{r}
+fit_raw01_loo <- BQBayes.MCMCSampleSFPCA_raw_fui(
+  Y = Y_use,
+  W = W_raw,       
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.1,
+
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+
+#### -----raw 0.5
+```{r}
+fit_raw05_loo <- BQBayes.MCMCSampleSFPCA_raw_fui(
+  Y = Y_use,
+  W = W_raw,       
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.5,
+
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+
+#### -----raw 0.9
+```{r}
+fit_raw09_loo <- BQBayes.MCMCSampleSFPCA_raw_fui(
+  Y = Y_use,
+  W = W_raw,       
+  Z = Z_use,
+
+  Nsim = 3000,
+  warmup = 1000,
+  tau0 = 0.9,
+
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  scalar_formula = formula01,
+
+  chains = 2,
+  cores = 2,
+  seed = 1123,
+  adapt_delta = 0.99,
+  max_treedepth = 10
+)
+```
+
+
+
+## --Plot
+### -----new plot for paper
+```{r}
+library(ggplot2)
+
+## 1.  beta(t)
+beta_raw <- .rfc_beta(
+  fit_raw09_loo,
+  method = "Raw"
+)
+
+beta_fui <- .rfc_beta(
+  fit_fui09_loo,
+  method = "FUI"
+)
+
+fit_joint_plot <- fit_m1_interaction_09
+
+## 2. 
+
+beta_joint <- flfoqr_beta_curve(fit_joint_plot)
+beta_joint$method <- "Joint"
+
+## 3. comb
+cols <- c("method", "t", "mean", "lower", "upper")
+
+beta_all <- rbind(
+  beta_raw[, cols],
+  beta_fui[, cols],
+  beta_joint[, cols]
+)
+
+beta_all$method <- factor(
+  beta_all$method,
+  levels = c("Raw", "FUI", "Joint")
+)
+
+
+## ============================================================
+## 4. Smooth the curves using smooth.spline
+## ============================================================
+
+## smaller df = stronger smoothing
+## larger df  = closer to original curve
+df_val <- 3
+
+
+smooth_one_curve <- function(dat, df_val) {
+
+  dat <- dat[order(dat$t), ]
+
+  ## posterior mean
+  fit_mean <- smooth.spline(
+    x = dat$t,
+    y = dat$mean,
+    df = df_val
+  )
+
+  ## lower CI
+  fit_lower <- smooth.spline(
+    x = dat$t,
+    y = dat$lower,
+    df = df_val
+  )
+
+  ## upper CI
+  fit_upper <- smooth.spline(
+    x = dat$t,
+    y = dat$upper,
+    df = df_val
+  )
+
+  dat$mean_smooth  <- fit_mean$y
+  dat$lower_smooth <- fit_lower$y
+  dat$upper_smooth <- fit_upper$y
+
+  dat
+}
+
+
+beta_all_smooth <- do.call(
+  rbind,
+  lapply(
+    split(beta_all, beta_all$method),
+    smooth_one_curve,
+    df_val = df_val
+  )
+)
+
+
+## Restore factor order
+beta_all_smooth$method <- factor(
+  beta_all_smooth$method,
+  levels = c(
+    "Raw",
+    "FUI",
+    "Joint"
+  )
+)
+
+
+## ============================================================
+## 5. Plot
+## ============================================================
+
+tau_value <- attr(fit_joint_plot, "tau0")
+
+
+colors <- c(
+  "Raw"   = "#A63603",
+  "FUI"   = "#08519C",
+  "Joint" = "#00BFC4"
+)
+
+
+p_all <- ggplot(
+  beta_all_smooth,
+  aes(
+    x = t,
+    y = mean_smooth,
+    colour = method,
+    linetype = method,
+    group = method
+  )
+) +
+
+  ## Zero reference line
+  geom_hline(
+    yintercept = 0,
+    color = "grey45",
+    linewidth = 0.6,
+    linetype = "dashed"
+  ) +
+
+  ## 95% credible intervals
+  ## Show ribbons only for FUI and Joint
+  geom_ribbon(
+    data = subset(
+      beta_all_smooth,
+       method == "Joint"
+    ),
+    aes(
+      x = t,
+      ymin = lower_smooth,
+      ymax = upper_smooth,
+      fill = method,
+      group = method
+    ),
+    inherit.aes = FALSE,
+    alpha = 0.18,
+    color = NA,
+    show.legend = FALSE
+  ) +
+
+  ## Smoothed mean curves
+  geom_line(
+    linewidth = 2.0
+  ) +
+
+  labs(
+    title = bquote(
+      tau == .(tau_value)
+    ),
+    x = "Time of day (hour)",
+    y = expression(beta(t)),
+    colour = "Method",
+    linetype = "Method"
+  ) +
+
+  ## Time axis: t is 0--1
+  scale_x_continuous(
+    breaks = seq(
+      0,
+      1,
+      by = 4 / 24
+    ),
+    labels = paste0(
+      seq(
+        0,
+        24,
+        by = 4
+      ),
+      ":00"
+    ),
+    expand = c(
+      0.01,
+      0.01
+    )
+  ) +
+
+  ## Same y-range
+  coord_cartesian(
+    ylim = c(
+      -3,
+      2
+    )
+  ) +
+
+  ## Line colors
+  scale_colour_manual(
+    name = "Method",
+    breaks = c(
+      "Raw",
+      "FUI",
+      "Joint"
+    ),
+    labels = c(
+      "Raw"   = "Naive",
+      "FUI"   = "RC",
+      "Joint" = "FBQ"
+    ),
+    values = colors
+  ) +
+
+  ## Ribbon colors
+  scale_fill_manual(
+    values = c(
+      "FUI"   = "#08519C",
+      "Joint" = "#00BFC4"
+    )
+  ) +
+
+  ## Line types
+  scale_linetype_manual(
+    name = "Method",
+    breaks = c(
+      "Raw",
+      "FUI",
+      "Joint"
+    ),
+    labels = c(
+      "Raw"   = "FPCA + Naive",
+      "FUI"   = "FPCA + MEM",
+      "Joint" = "Joint model"
+    ),
+    values = c(
+      "Raw"   = "dotdash",
+      "FUI"   = "solid",
+      "Joint" = "solid"
+    )
+  ) +
+
+  ## Suppress ribbon/fill legend
+  guides(
+  fill = "none",
+  linetype = "none"
+) +
+
+  ## Background/style
+  theme_gray(
+    base_size = 14
+  ) +
+
+  theme(
+    panel.background = element_rect(
+      fill = "grey90",
+      color = NA
+    ),
+
+    plot.background = element_rect(
+      fill = "white",
+      color = NA
+    ),
+
+    panel.grid.major = element_line(
+      color = "white",
+      linewidth = 0.6
+    ),
+
+    panel.grid.minor = element_line(
+      color = "white",
+      linewidth = 0.3
+    ),
+
+    panel.border = element_rect(
+      color = "white",
+      fill = NA,
+      linewidth = 1
+    ),
+
+    axis.line = element_blank(),
+
+    axis.title = element_text(
+      face = "bold"
+    ),
+
+    axis.text = element_text(
+      color = "grey20"
+    ),
+
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    ),
+
+    legend.position = "bottom",
+
+    legend.direction = "horizontal",
+
+    legend.box = "horizontal",
+
+    legend.title = element_text(
+      face = "bold"
+    ),
+
+    legend.text = element_text(
+      size = 10
+    ),
+
+    legend.background = element_rect(
+      fill = "white",
+      color = NA
+    ),
+
+    legend.key = element_rect(
+      fill = "grey100",
+      color = NA
+    ),
+
+    plot.margin = margin(
+      5.5,
+      5.5,
+      5.5,
+      5.5
+    )
+  )
+
+
+print(p_all)
+
+
+if (!exists("beta_plot_list", inherits = FALSE)) {
+  beta_plot_list <- list()
+}
+stopifnot(length(tau_value) == 1L, is.finite(tau_value))
+
+# save current tau
+beta_plot_list[[as.character(tau_value)]] <- beta_all_smooth
+```
+
+### -----comb plot
+```{r}
+
+
+library(ggplot2)
+library(dplyr)
+
+tau_order <- c("0.1", "0.5", "0.9")
+
+if (!exists("beta_plot_list", inherits = FALSE)) {
+  stop("First save each single-tau beta_all_smooth in beta_plot_list.")
+}
+missing_tau <- setdiff(tau_order, names(beta_plot_list))
+if (length(missing_tau)) {
+  stop("Missing plot data for tau: ", paste(missing_tau, collapse = ", "))
+}
+
+plot_all_tau <- bind_rows(beta_plot_list[tau_order], .id = "tau")
+plot_all_tau$Panel <- factor(
+  paste0("tau==", plot_all_tau$tau),
+  levels = paste0("tau==", tau_order)
+)
+plot_all_tau$method <- factor(
+  plot_all_tau$method,
+  levels = c("Raw", "FUI", "Joint")
+)
+
+method_order <- c("Raw", "FUI", "Joint")
+method_labels <- c("Raw" = "Naive", "FUI" = "RC", "Joint" = "FBQ")
+method_colors <- c("Raw" = "#A63603", "FUI" = "#08519C", "Joint" = "#00BFC4")
+method_lines <- c("Raw" = "dotdash", "FUI" = "solid", "Joint" = "solid")
+
+p_three_tau <- ggplot(
+  plot_all_tau,
+  aes(x = t, y = mean_smooth, colour = method,
+      linetype = method, group = method)
+) +
+  geom_hline(
+    yintercept = 0, colour = "grey45",
+    linewidth = 0.6, linetype = "dashed"
+  ) +
+  # Keep the panel column in this data so each panel gets its own Joint band.
+  geom_ribbon(
+    data = subset(plot_all_tau, method == "Joint"),
+    aes(x = t, ymin = lower_smooth, ymax = upper_smooth, group = method),
+    inherit.aes = FALSE,
+    fill = "#00BFC4", alpha = 0.18, colour = NA,
+    show.legend = FALSE
+  ) +
+  geom_line(linewidth = 2.0) +
+  facet_wrap(
+    ~ Panel, nrow = 1, scales = "fixed",
+    labeller = labeller(Panel = label_parsed)
+  ) +
+  labs(
+    x = "Time of day (hour)", y = expression(beta(t)),
+    colour = "Method", linetype = "Method"
+  ) +
+  scale_x_continuous(
+    breaks = seq(0, 1, by = 4 / 24),
+    labels = paste0(seq(0, 24, by = 4), ":00"),
+    expand = c(0.01, 0.01)
+  ) +
+  # Same display range as the supplied single-tau plot. Adjust if necessary.
+  coord_cartesian(xlim = c(0, 1), ylim = c(-3, 2)) +
+  scale_colour_manual(
+    name = "Method", breaks = method_order,
+    labels = method_labels, values = method_colors
+  ) +
+  scale_linetype_manual(
+    name = "Method", breaks = method_order,
+    labels = method_labels, values = method_lines
+  ) +
+  theme_gray(base_size = 14) +
+  theme(
+    panel.spacing.x = grid::unit(0.5, "cm"),
+    panel.background = element_rect(fill = "grey90", colour = NA),
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.grid.major = element_line(colour = "white", linewidth = 0.6),
+    panel.grid.minor = element_line(colour = "white", linewidth = 0.3),
+    panel.border = element_rect(colour = "white", fill = NA, linewidth = 1),
+    axis.line = element_blank(),
+    axis.title = element_text(face = "bold"),
+    axis.text = element_text(colour = "grey20"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.background = element_rect(fill = "grey95", colour = NA),
+    strip.text = element_text(face = "plain", size = 12, colour = "black"),
+    legend.position = "bottom",
+    legend.direction = "horizontal",
+    legend.box = "horizontal",
+    legend.title = element_text(face = "bold"),
+    legend.text = element_text(size = 10),
+    legend.background = element_rect(fill = "white", colour = NA),
+    legend.key = element_rect(fill = "grey100", colour = NA),
+    plot.margin = margin(5.5, 5.5, 5.5, 5.5)
+  )
+
+print(p_three_tau)
+ggsave(
+  "three_tau_comparison.png", plot = p_three_tau,
+  width = 11.5, height = 5.2, units = "in", dpi = 600, bg = "white"
+)
+
+```
+
+
+## --Rescale coefficient of fix effect 
+
+#### -----joint
+```{r}
+backtransform_scalar_coefs <- function(
+    fit,
+    Y_use,
+    Z_use,
+    W_use,
+    numeric_Z = c("AgeYR", "HEI"),
+    factor_Z  = c("Gender", "Race", "HealthCondt2"),
+    reg_formula
+) {
+  
+  library(rstan)
+  library(brms)
+  
+  
+  ## ============================================================
+  ## 1. Reproduce the exact analysis sample
+  ## ============================================================
+  
+  Z_df <- as.data.frame(Z_use)
+  
+  for (nm in factor_Z) {
+    Z_df[[nm]] <- as.factor(Z_df[[nm]])
+  }
+  
+  idx <- complete.cases(Y_use, Z_df) &
+    apply(
+      W_use,
+      1,
+      function(x) all(is.finite(x))
+    )
+  
+  Y0 <- as.numeric(Y_use[idx])
+  Z0 <- Z_df[idx, , drop = FALSE]
+  
+  
+  ## ============================================================
+  ## 2. Means / SDs used in standardization
+  ## ============================================================
+  
+  y_mean <- attr(fit, "Y_mean")
+  y_sd   <- attr(fit, "Y_sd")
+  
+  if (is.null(y_mean)) {
+    y_mean <- mean(Y0)
+  }
+  
+  if (is.null(y_sd)) {
+    y_sd <- sd(Y0)
+  }
+  
+  
+  ## continuous covariate means
+  z_mean <- sapply(
+    Z0[, numeric_Z, drop = FALSE],
+    mean
+  )
+  
+  ## continuous covariate SDs
+  z_sd <- sapply(
+    Z0[, numeric_Z, drop = FALSE],
+    sd
+  )
+  
+  
+  ## ============================================================
+  ## 3. Reconstruct exact scalar design matrix
+  ## ============================================================
+  
+  Z_numeric_scaled <- as.data.frame(
+    scale(
+      Z0[, numeric_Z, drop = FALSE],
+      center = TRUE,
+      scale = TRUE
+    )
+  )
+  
+  Z_factor <- Z0[, factor_Z, drop = FALSE]
+  
+  Z_final_model <- data.frame(
+    Z_numeric_scaled,
+    Z_factor
+  )
+  
+  df2 <- data.frame(
+    Y = (Y0 - y_mean) / y_sd,
+    Z_final_model
+  )
+  
+  
+  ## scalar covariates
+  z_terms <- setdiff(
+    colnames(df2),
+    "Y"
+  )
+  
+  
+  ## Variables appearing inside interactions
+  z_main_no_inter <- setdiff(
+    z_terms,
+    c(
+      "Race",
+      "Gender",
+      "AgeYR",
+      "HEI"
+    )
+  )
+  
+  
+  ## EXACT same formula as fitted model
+  #form_Z <- paste0(
+  #  "Y ~ ", 
+  #  paste(c(
+  #      z_main_no_inter,
+  #      "Race * Gender",
+  #      "Race * AgeYR",
+  #      "HEI * Race"
+  #    ),
+  #    collapse = " + "
+  #  )
+  #)
+  
+  #form_Z <- "Y ~ HealthCondt2 + Race * Gender + Race * AgeYR"
+  form_Z <- reg_formula
+  
+  Dt2 <- brms::make_standata(
+    brms::bf(
+      as.formula(form_Z),
+      quantile = attr(fit, "tau0")
+    ),
+    data = df2,
+    family = brms::asym_laplace()
+  )
+  
+  
+  ## Exact names corresponding to b[1], ..., b[p]
+  b_names <- colnames(Dt2$X)[-1]
+  
+  
+  ## ============================================================
+  ## 4. Extract posterior draws
+  ##
+  ## IMPORTANT:
+  ## a_x       = coefficients of population mean alpha_0(t)
+  ## b_func_gq = functional beta mapped into Bx coordinates
+  ## ============================================================
+  
+  post <- rstan::extract(
+    fit,
+    pars = c(
+      "b",
+      "b_Intercept",
+      "a_x",
+      "b_func_gq"
+    ),
+    permuted = TRUE
+  )
+  
+  
+  B_std <- as.matrix(post$b)
+  
+  stopifnot(
+    ncol(B_std) == length(b_names)
+  )
+  
+  colnames(B_std) <- b_names
+  
+  
+  ## Make sure a_x and b_func have same functional dimension
+  a_x_draws <- as.matrix(post$a_x)
+  b_func_draws <- as.matrix(post$b_func_gq)
+  
+  stopifnot(
+    nrow(a_x_draws) == nrow(B_std),
+    nrow(b_func_draws) == nrow(B_std),
+    ncol(a_x_draws) == ncol(b_func_draws)
+  )
+  
+  
+  ## ============================================================
+  ## 5. Restore Y scale for scalar coefficients
+  ## ============================================================
+  
+  B_orig <- B_std * y_sd
+  
+  
+  ## ============================================================
+  ## 6. Restore Age / HEI original units
+  ##
+  ## Age main + Race x Age   : divide by SD(Age)
+  ## HEI main + Race x HEI   : divide by SD(HEI)
+  ## ============================================================
+  
+  for (j in seq_along(b_names)) {
+    
+    pieces <- strsplit(
+      b_names[j],
+      ":",
+      fixed = TRUE
+    )[[1]]
+    
+    
+    for (nm in numeric_Z) {
+      
+      if (nm %in% pieces) {
+        
+        B_orig[, j] <-
+          B_orig[, j] /
+          z_sd[nm]
+      }
+    }
+  }
+  
+  
+  ## ============================================================
+  ## 7. Correct Race main effects
+  ##
+  ## Because:
+  ##
+  ## Age_std = (Age - mean_age) / sd_age
+  ## HEI_std = (HEI - mean_hei) / sd_hei
+  ##
+  ## Race main effects must absorb the centering terms from
+  ## Race x Age and Race x HEI.
+  ## ============================================================
+  
+  race_main <- grep(
+    "^Race[^:]+$",
+    colnames(B_orig),
+    value = TRUE
+  )
+  
+  
+  find_interaction <- function(
+    race_name,
+    numeric_name
+  ) {
+    
+    candidates <- c(
+      paste0(race_name, ":", numeric_name),
+      paste0(numeric_name, ":", race_name)
+    )
+    
+    hit <- intersect(
+      candidates,
+      colnames(B_orig)
+    )
+    
+    if (length(hit) == 0) {
+      return(NA_character_)
+    }
+    
+    hit[1]
+  }
+  
+  
+  for (race_name in race_main) {
+    
+    ## --------------------------
+    ## Race x Age
+    ## --------------------------
+    
+    nm_age <- find_interaction(
+      race_name,
+      "AgeYR"
+    )
+    
+    if (!is.na(nm_age)) {
+      
+      B_orig[, race_name] <-
+        B_orig[, race_name] -
+        B_orig[, nm_age] *
+        z_mean["AgeYR"]
+    }
+    
+    
+    ## --------------------------
+    ## Race x HEI
+    ## --------------------------
+    
+    nm_hei <- find_interaction(
+      race_name,
+      "HEI"
+    )
+    
+    if (!is.na(nm_hei)) {
+      
+      B_orig[, race_name] <-
+        B_orig[, race_name] -
+        B_orig[, nm_hei] *
+        z_mean["HEI"]
+    }
+  }
+  
+  
+  ## ============================================================
+  ## 8. FUNCTIONAL POPULATION MEAN alpha_0(t)
+  ##
+  ## Current fitted outcome model uses:
+  ##
+  ##   gamma_i' b_func
+  ##
+  ## but full latent curve is:
+  ##
+  ##   X_i = a_x + gamma_i
+  ##
+  ## therefore:
+  ##
+  ##   gamma_i' b_func
+  ##      =
+  ##   X_i' b_func - a_x' b_func
+  ##
+  ## Thus the intercept for the FULL-X representation is:
+  ##
+  ##   b_Intercept - a_x' b_func
+  ##
+  ## IMPORTANT: calculate draw-by-draw.
+  ## ============================================================
+  
+  alpha0_func_contrib_std <- rowSums(
+    a_x_draws *
+      b_func_draws
+  )
+  
+  
+  ## b_Intercept corresponds to scalar X before undoing
+  ## Age/HEI standardization, but still uses gamma deviation.
+  
+  intercept_fullX_std <-
+    as.numeric(post$b_Intercept) -
+    alpha0_func_contrib_std
+  
+  
+  ## ============================================================
+  ## 9. Back-transform intercept to original BMI scale
+  ## ============================================================
+  
+  intercept_orig <-
+    y_mean +
+    y_sd *
+    intercept_fullX_std
+  
+  
+  ## Undo Age centering
+  if ("AgeYR" %in% colnames(B_orig)) {
+    
+    intercept_orig <-
+      intercept_orig -
+      B_orig[, "AgeYR"] *
+      z_mean["AgeYR"]
+  }
+  
+  
+  ## Undo HEI centering
+  if ("HEI" %in% colnames(B_orig)) {
+    
+    intercept_orig <-
+      intercept_orig -
+      B_orig[, "HEI"] *
+      z_mean["HEI"]
+  }
+  
+  
+  ## ============================================================
+  ## 10. Final original-scale posterior draws
+  ## ============================================================
+  
+  coef_orig <- cbind(
+    Intercept = intercept_orig,
+    B_orig
+  )
+  
+  
+  ## ============================================================
+  ## 11. Posterior summaries
+  ## ============================================================
+  
+  summ <- function(x) {
+    
+    c(
+      Mean = mean(x),
+      SD = sd(x),
+      
+      `2.5%` = unname(
+        quantile(
+          x,
+          0.025
+        )
+      ),
+      
+      `50%` = unname(
+        quantile(
+          x,
+          0.50
+        )
+      ),
+      
+      `97.5%` = unname(
+        quantile(
+          x,
+          0.975
+        )
+      )
+    )
+  }
+  
+  
+  tab <- as.data.frame(
+    t(
+      apply(
+        coef_orig,
+        2,
+        summ
+      )
+    )
+  )
+  
+  
+  ## ============================================================
+  ## 12. b[1] ... b[p] mapping
+  ## ============================================================
+  
+  mapping <- data.frame(
+    
+    parameter = paste0(
+      "b[",
+      seq_along(b_names),
+      "]"
+    ),
+    
+    term = b_names
+  )
+  
+  
+  ## ============================================================
+  ## 13. Useful intercept diagnostics
+  ## ============================================================
+  
+  intercept_gamma_std <-
+    as.numeric(
+      post$b_Intercept
+    )
+  
+  
+  intercept_gamma_Yscale <-
+    y_mean +
+    y_sd *
+    intercept_gamma_std
+  
+  
+  alpha0_func_contrib_Yscale <-
+    y_sd *
+    alpha0_func_contrib_std
+  
+  
+  intercept_diagnostics <- data.frame(
+    
+    quantity = c(
+      "b_Intercept: gamma parameterization, standardized Y",
+      "alpha0 functional contribution, standardized Y",
+      "full-X intercept before Age/HEI correction, standardized Y",
+      "alpha0 functional contribution, original Y scale"
+    ),
+    
+    mean = c(
+      mean(intercept_gamma_std),
+      mean(alpha0_func_contrib_std),
+      mean(intercept_fullX_std),
+      mean(alpha0_func_contrib_Yscale)
+    ),
+    
+    sd = c(
+      sd(intercept_gamma_std),
+      sd(alpha0_func_contrib_std),
+      sd(intercept_fullX_std),
+      sd(alpha0_func_contrib_Yscale)
+    )
+  )
+  
+  
+  ## ============================================================
+  ## 14. Return
+  ## ============================================================
+  
+  list(
+    
+    mapping = mapping,
+    
+    table = tab,
+    
+    draws = coef_orig,
+    
+    ## Standardization information
+    Y_mean = y_mean,
+    Y_sd = y_sd,
+    Z_mean = z_mean,
+    Z_sd = z_sd,
+    
+    ## Functional alpha_0 contribution
+    alpha0_func_contrib_std =
+      alpha0_func_contrib_std,
+    
+    alpha0_func_contrib_Yscale =
+      alpha0_func_contrib_Yscale,
+    
+    ## Different intercept parameterizations
+    intercept_gamma_std =
+      intercept_gamma_std,
+    
+    intercept_fullX_std =
+      intercept_fullX_std,
+    
+    intercept_original =
+      intercept_orig,
+    
+    intercept_diagnostics =
+      intercept_diagnostics
+  )
+}
+```
+
+```{r}
+bt01 <- backtransform_scalar_coefs(
+  fit = fit_m1_interaction_09 , #### fit 
+  Y_use = Y_use,
+  Z_use = Z_use,
+  W_use = W_use,
+  numeric_Z = c("AgeYR","HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  reg_formula = formula01
+)
+
+bt01$mapping
+bt01$table
+
+```
+
+#### -----raw & fui
+```{r}
+fpca_fui <- build_fpca_reparam(w_fui_use)
+fpca_raw <- build_fpca_reparam(W_raw)
+
+## 2. FUI
+bt_fui09 <- backtransform_scalar_coefs_fui_raw(
+  fit = fit_fui09_loo,
+  Y_use = Y_use,
+  Z_use = Z_use,
+  W_use = w_fui_use,
+
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  reg_formula = formula01,
+
+  tau0 = 0.9,
+  intercept_type = "fullX",
+  fpca_reparam = fpca_fui
+)
+
+## 3. Raw：对象名和输入矩阵名需对应你的实际拟合
+bt_raw09 <- backtransform_scalar_coefs(
+  fit = fit_raw09_loo,
+  Y_use = Y_use,
+  Z_use = Z_use,
+  W_use = W_raw,
+
+  numeric_Z = c("AgeYR", "HEI"),
+  factor_Z = c("Gender", "Race", "HealthCondt2"),
+  reg_formula = formula01,
+
+  tau0 = 0.9,
+  intercept_type = "fullX",
+  fpca_reparam = fpca_raw
+)
+
+bt_fui09$table
+bt_raw09$table
+```
+
+
+## --LOO
+```{r}
+compare_y_loo <- function(fits, Y, y_scale = stats::sd(Y),
+                          cores = 2, save_psis = TRUE) {
+  if (!requireNamespace("loo", quietly = TRUE)) {
+    stop("Please install the loo package.")
+  }
+  if (!is.list(fits)) stop("fits must be a named list.")
+  fits <- fits[!vapply(fits, is.null, logical(1))]
+  nm <- names(fits)
+  if (length(fits) < 2L || is.null(nm) || anyNA(nm) ||
+      any(nm == "") || anyDuplicated(nm)) {
+    stop("Provide at least two fits with distinct, nonempty names.")
+  }
+  if (!is.numeric(Y) || length(Y) < 2L || any(!is.finite(Y))) {
+    stop("Y must contain the finite outcomes actually used in all fits.")
+  }
+  if (!is.numeric(y_scale) || !length(y_scale) ||
+      any(!is.finite(y_scale)) || any(y_scale <= 0)) {
+    stop("y_scale must contain positive finite scale values.")
+  }
+  if (length(y_scale) == 1L) {
+    y_scale <- stats::setNames(rep(y_scale, length(fits)), nm)
+  } else {
+    if (is.null(names(y_scale)) || anyDuplicated(names(y_scale)) ||
+        !all(nm %in% names(y_scale))) {
+      stop("For different scales, name y_scale values to match the fits.")
+    }
+    y_scale <- y_scale[nm]
+  }
+
+  loo_list <- stats::setNames(lapply(nm, function(model) {
+    cat("\n---", model, ": PSIS-LOO ---\n")
+
+    # Post-warmup iterations x chains x participants
+    ll_y <- loo::extract_log_lik(
+      fits[[model]], parameter_name = "log_lik_y", merge_chains = FALSE
+    )
+    if (length(dim(ll_y)) != 3L || dim(ll_y)[3L] != length(Y)) {
+      stop(model, ": log_lik_y must have dimensions iterations x chains x N,",
+           " with N = length(Y).")
+    }
+    if (any(!is.finite(ll_y))) {
+      stop(model, ": log_lik_y contains NA, NaN or infinite values.")
+    }
+
+    # Apply the Jacobian ONCE, to this freshly extracted local array.
+    ll_y <- ll_y - log(y_scale[[model]])
+
+    # Stabilize exp() for r_eff only. The array preserves chain information.
+    ll_centered <- sweep(ll_y, 3L, apply(ll_y, 3L, max), FUN = "-")
+    r_eff <- loo::relative_eff(exp(ll_centered), cores = cores)
+
+    # Use the uncentered, original-Y-scale log density for LOO.
+    ans <- loo::loo(ll_y, r_eff = r_eff, cores = cores,
+                    save_psis = save_psis)
+    print(ans)
+    ans
+  }), nm)
+
+  bad_k <- lapply(loo_list, loo::pareto_k_ids)
+  if (any(lengths(bad_k) > 0L)) {
+    warning("High Pareto k detected: inspect bad_k and resolve unreliable ",
+            "LOO estimates before interpreting the ranking.", call. = FALSE)
+  }
+
+  comparison <- loo::loo_compare(loo_list)
+  cat("\n--- Model comparison: outcome-only ELPD ---\n")
+  print(comparison, simplify = FALSE)
+
+  invisible(list(loo = loo_list, comparison = comparison,
+                 bad_k = bad_k, y_scale = y_scale))
+}
+
+```
+
+
+
+```{r}
+fits_loo <- list(
+  FUI = fit_fui01_loo,
+  Raw = fit_raw01_loo 
+  #joint = fit_m2_interaction_01
+)
+
+result05 <- compare_y_loo(
+  fits = fits_loo,
+  Y = Y_use,
+  y_scale = sd(Y_use),
+  cores = 2
+)
+
+```
